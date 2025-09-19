@@ -3,22 +3,23 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Protótipo Clash-like Pixel</title>
+<title>Clash-like Pixel - Atualizado</title>
 <style>
   :root {
     --blue: #3a7bd5;
     --red: #d54b3a;
     --field-a: #84c098;
     --field-b: #5a9e7b;
-    --ui-bg: #1a1f24;
-    --card-bg: #2a323a;
+    --ui-bg: #171c21;
+    --card-bg: #202830;
     --text: #e8eef5;
     --muted: #b5c2d1;
     --elixir: #7a49ff;
     --elixir-dark: #3e247f;
-    --good: #39d98a;
-    --bad: #ff6b6b;
     --border: #0e1318;
+    --spell: #ffd36e;
+    --troop: #6dd3b5;
+    --building: #9b7aff;
   }
 
   * { box-sizing: border-box; }
@@ -27,13 +28,12 @@
     margin: 0;
     background: #0c1116;
     color: var(--text);
-    font: 14px/1.3 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+    font: 14px/1.35 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans";
     display: grid;
     place-items: center;
-    height: 100vh;
+    min-height: 100vh;
   }
 
-  /* Layout principal */
   .root {
     width: 980px;
     max-width: 96vw;
@@ -42,7 +42,6 @@
     gap: 8px;
   }
 
-  /* Header com tempo e botão */
   .topbar {
     display: flex;
     align-items: center;
@@ -52,51 +51,36 @@
     border-radius: 8px;
     padding: 8px 12px;
   }
-  .timer {
-    font-weight: 700;
-    letter-spacing: 1px;
-    font-size: 18px;
-  }
-  .status {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    color: var(--muted);
-  }
+  .timer { font-weight: 800; letter-spacing: 1px; font-size: 18px; }
+  .status { color: var(--muted); }
   button#startBtn {
     background: #244a7f;
     color: #e9f1ff;
     border: 2px solid #0f274b;
     border-radius: 6px;
     padding: 8px 12px;
-    cursor: pointer;
-    font-weight: 700;
+    cursor: pointer; font-weight: 700;
   }
-  button#startBtn:hover {
-    filter: brightness(1.1);
-  }
+  button#startBtn:hover { filter: brightness(1.1); }
 
-  /* Campo de batalha */
   .arena-wrap {
     position: relative;
     background: linear-gradient(180deg, var(--field-a) 0%, var(--field-b) 100%);
     border: 4px solid var(--border);
     border-radius: 10px;
-    image-rendering: pixelated; /* reforça vibe pixel */
     overflow: hidden;
   }
   canvas#arena {
     display: block;
     width: 100%;
-    height: 520px; /* escalável pela largura */
+    height: 520px;
     image-rendering: pixelated;
     background-image:
       linear-gradient(to right, rgba(255,255,255,0.08) 1px, transparent 1px),
       linear-gradient(to bottom, rgba(0,0,0,0.06) 1px, transparent 1px);
-    background-size: 16px 16px, 16px 16px; /* grade pixelada */
+    background-size: 16px 16px, 16px 16px;
   }
 
-  /* Elixir */
   .elixir {
     background: var(--ui-bg);
     border: 2px solid var(--border);
@@ -112,19 +96,17 @@
     overflow: hidden;
   }
   .elixir-fill {
-    position: absolute;
-    top: 0; left: 0; bottom: 0;
+    position: absolute; inset: 0 auto 0 0;
     width: 0%;
     background: linear-gradient(90deg, #9a7bff, var(--elixir));
   }
   .elixir-meta {
     margin-top: 6px;
-    display: flex;
-    justify-content: space-between;
+    display: flex; justify-content: space-between;
     color: var(--muted);
   }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
 
-  /* Mão de cartas */
   .hand {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -137,50 +119,47 @@
   .card {
     background: var(--card-bg);
     border: 2px solid #141a20;
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 8px;
-    min-height: 72px;
+    min-height: 86px;
     display: grid;
-    grid-template-rows: auto auto;
+    grid-template-rows: auto 1fr auto;
     gap: 6px;
     cursor: pointer;
     position: relative;
   }
   .card:hover { filter: brightness(1.05); }
   .card.selected { outline: 3px dashed #ffd36e; outline-offset: -4px; }
-  .card-name {
-    font-weight: 700;
-    font-size: 13px;
-  }
+
   .card-cost {
-    position: absolute;
-    top: 6px; right: 6px;
+    position: absolute; top: 6px; right: 6px;
     background: var(--elixir);
     border: 2px solid #2b1680;
     color: #fff;
     font-weight: 800;
-    width: 22px; height: 22px;
+    width: 24px; height: 24px;
     display: grid; place-items: center;
-    border-radius: 4px;
-    font-size: 12px;
+    border-radius: 6px; font-size: 12px;
   }
-  .card-type {
-    font-size: 12px;
-    color: var(--muted);
+  .badge {
+    position: absolute; top: 6px; left: 6px;
+    font-weight: 900; font-size: 16px;
+    width: 24px; height: 24px; border-radius: 6px;
+    display: grid; place-items: center;
+    color: #0c0f13;
   }
+  .badge.troop { background: var(--troop); }
+  .badge.spell { background: var(--spell); }
+  .badge.build { background: var(--building); }
 
-  /* Tooltip simples de ajuda */
-  .hint {
-    color: var(--muted);
-    font-size: 12px;
-    margin-top: 4px;
-  }
+  .card-name { font-weight: 800; font-size: 13px; }
+  .card-type { font-size: 12px; color: var(--muted); }
 
-  /* Faixas de implantação (apenas feedback visual) */
-  .lane-overlay {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
+  .lane-overlay { position: absolute; inset: 0; pointer-events: none; }
+
+  .tooltip {
+    position: absolute; bottom: 6px; left: 8px; right: 8px;
+    font-size: 11px; color: #cfd9e6; opacity: 0.85;
   }
 </style>
 </head>
@@ -188,9 +167,7 @@
 <div class="root">
   <div class="topbar">
     <div class="timer" id="timer">02:00</div>
-    <div class="status">
-      <div id="gameStatus">Aguardando...</div>
-    </div>
+    <div class="status" id="gameStatus">Aguardando...</div>
     <button id="startBtn">Iniciar / Reiniciar</button>
   </div>
 
@@ -200,14 +177,14 @@
   </div>
 
   <div class="elixir">
-    <div class="elixir-bar">
-      <div class="elixir-fill" id="elixirFill"></div>
-    </div>
+    <div class="elixir-bar"><div class="elixir-fill" id="elixirFill"></div></div>
     <div class="elixir-meta">
       <div>Elixir: <span id="elixirText">0 / 10</span></div>
       <div>Bot Elixir: <span id="botElixirText">0 / 10</span></div>
     </div>
-    <div class="hint">Selecione uma carta e clique em uma lane na sua metade inferior para invocar. Flecha: selecione e clique em uma área do campo.</div>
+    <div class="hint">
+      Selecione uma carta e clique na sua metade para invocar. Flecha: clique na área. Giovanne: clique no alvo para eliminar.
+    </div>
   </div>
 
   <div class="hand" id="hand"></div>
@@ -215,74 +192,59 @@
 
 <script>
 (function() {
-  // =============================
-  // Configurações gerais
-  // =============================
-  const ARENA_W = 960;
-  const ARENA_H = 520;
-
-  // Três lanes: esquerda, centro, direita — definimos faixas em X
+  // ================================
+  // Configurações
+  // ================================
+  const ARENA_W = 960, ARENA_H = 520;
   const LANES = [
     { xMin: ARENA_W * 0.08, xMax: ARENA_W * 0.32, midX: ARENA_W * 0.20 },
     { xMin: ARENA_W * 0.36, xMax: ARENA_W * 0.64, midX: ARENA_W * 0.50 },
     { xMin: ARENA_W * 0.68, xMax: ARENA_W * 0.92, midX: ARENA_W * 0.80 },
   ];
-
-  // Metade do jogador (embaixo) para deploy
   const PLAYER_DEPLOY_Y_MIN = ARENA_H * 0.55;
   const BOT_DEPLOY_Y_MAX = ARENA_H * 0.45;
 
-  // Torres — posições
   const TOWER_SIZE = { w: 28, h: 32 };
   const KING_SIZE  = { w: 36, h: 40 };
 
-  // Lado do jogador (Azul) embaixo; Bot (Vermelho) em cima
   const PLAYER_COLOR = '#3a7bd5';
   const BOT_COLOR = '#d54b3a';
 
-  // Torres: 1 rei (meio), 2 princesas (esq/dir)
-  const TOWERS = {
+  const BASE_TOWERS = {
     player: {
-      king:    { x: ARENA_W * 0.50, y: ARENA_H * 0.90, hp: 2000, max: 2000, range: 120, dps: 100, color: PLAYER_COLOR, size: KING_SIZE },
-      left:    { x: ARENA_W * 0.25, y: ARENA_H * 0.78, hp: 1500, max: 1500, range: 110, dps: 70, color: PLAYER_COLOR, size: TOWER_SIZE },
-      right:   { x: ARENA_W * 0.75, y: ARENA_H * 0.78, hp: 1500, max: 1500, range: 110, dps: 70, color: PLAYER_COLOR, size: TOWER_SIZE },
+      king:  { x: ARENA_W * 0.50, y: ARENA_H * 0.90, hp: 2000, max: 2000, range: 120, dps: 100, color: PLAYER_COLOR, size: KING_SIZE },
+      left:  { x: ARENA_W * 0.25, y: ARENA_H * 0.78, hp: 1500, max: 1500, range: 110, dps: 70,  color: PLAYER_COLOR, size: TOWER_SIZE },
+      right: { x: ARENA_W * 0.75, y: ARENA_H * 0.78, hp: 1500, max: 1500, range: 110, dps: 70,  color: PLAYER_COLOR, size: TOWER_SIZE },
     },
     bot: {
-      king:    { x: ARENA_W * 0.50, y: ARENA_H * 0.10, hp: 2000, max: 2000, range: 120, dps: 100, color: BOT_COLOR, size: KING_SIZE },
-      left:    { x: ARENA_W * 0.25, y: ARENA_H * 0.22, hp: 1500, max: 1500, range: 110, dps: 70, color: BOT_COLOR, size: TOWER_SIZE },
-      right:   { x: ARENA_W * 0.75, y: ARENA_H * 0.22, hp: 1500, max: 1500, range: 110, dps: 70, color: BOT_COLOR, size: TOWER_SIZE },
+      king:  { x: ARENA_W * 0.50, y: ARENA_H * 0.10, hp: 2000, max: 2000, range: 120, dps: 100, color: BOT_COLOR, size: KING_SIZE },
+      left:  { x: ARENA_W * 0.25, y: ARENA_H * 0.22, hp: 1500, max: 1500, range: 110, dps: 70,  color: BOT_COLOR, size: TOWER_SIZE },
+      right: { x: ARENA_W * 0.75, y: ARENA_H * 0.22, hp: 1500, max: 1500, range: 110, dps: 70,  color: BOT_COLOR, size: TOWER_SIZE },
     }
   };
 
-  // Deck de 8 cartas
-  const DECK = [
-    { id: 'golem', name: 'Golem de Pedra',  type: 'Tropa',   cost: 8, dmg: 50,  hp: 1500, range: 10,  speed: 20,  aoe: false, splitOnDeath: true, color:'#7e6f5a' },
-    { id: 'skele', name: 'Cavaleiro Esqueleto', type: 'Tropa', cost: 3, dmg: 75,  hp: 350,  range: 10,  speed: 60,  aoe: false, color:'#c8c8c8' },
-    { id: 'mage',  name: 'Mago de Fogo',    type: 'Tropa',   cost: 5, dmg: 120, hp: 450,  range: 70,  speed: 40,  aoe: true,  color:'#ff924f' },
-    { id: 'arrow', name: 'Flecha',          type: 'Feitiço', cost: 3, dmg: 100, hp: 0,    range: 0,   speed: 0,   aoe: true,  color:'#ffd36e' },
-    { id: 'giant', name: 'Gigante da Arena',type: 'Tropa',   cost: 6, dmg: 150, hp: 1200, range: 10,  speed: 28,  aoe: false, targetOnlyTowers: true, color:'#b28b6b' },
-    { id: 'bomb',  name: 'Bombardeiro Pequeno', type: 'Tropa', cost: 2, dmg: 90,  hp: 200,  range: 60,  speed: 45,  aoe: true,  color:'#e5d255' },
-    { id: 'dragon',name: 'Dragão de Elixir',type: 'Tropa',   cost: 4, dmg: 80,  hp: 550,  range: 80,  speed: 38,  aoe: false, flying: true, color:'#6ed2ff' },
-    { id: 'tower', name: 'Torre de Elixir', type: 'Construção', cost: 7, dmg: 110, hp: 900, range: 100, speed: 0, aoe: false, isBuilding: true, color:'#9b7aff' },
+  // Deck base + Giovanne
+  const DECK_LIST = [
+    { id: 'golem', name: 'Golem de Pedra',  type: 'Tropa',   cost: 8, dmg: 50,  hp: 1500, range: 10,  speed: 20,  aoe: false, splitOnDeath: true, color:'#7e6f5a', desc:'Lento e forte. Divide ao morrer.' },
+    { id: 'skele', name: 'Cavaleiro Esqueleto', type: 'Tropa', cost: 3, dmg: 75,  hp: 350,  range: 10,  speed: 60,  aoe: false, color:'#c8c8c8', desc:'Melee rápido e barato.' },
+    { id: 'mage',  name: 'Mago de Fogo',    type: 'Tropa',   cost: 5, dmg: 120, hp: 450,  range: 70,  speed: 40,  aoe: true,  color:'#ff924f', desc:'À distância com dano em área.' },
+    { id: 'arrow', name: 'Flecha',          type: 'Feitiço', cost: 3, dmg: 100, hp: 0,    range: 0,   speed: 0,   aoe: true,  color:'#ffd36e', desc:'Dano em área na região clicada.' },
+    { id: 'giant', name: 'Gigante da Arena',type: 'Tropa',   cost: 6, dmg: 150, hp: 1200, range: 10,  speed: 28,  aoe: false, targetOnlyTowers: true, color:'#b28b6b', desc:'Foca torres.' },
+    { id: 'bomb',  name: 'Bombardeiro Pequeno', type: 'Tropa', cost: 2, dmg: 90,  hp: 200,  range: 60,  speed: 45,  aoe: true,  color:'#e5d255', desc:'Projéteis com dano em área.' },
+    { id: 'dragon',name: 'Dragão de Elixir',type: 'Tropa',   cost: 4, dmg: 80,  hp: 550,  range: 80,  speed: 38,  aoe: false, flying: true, color:'#6ed2ff', desc:'Voador à distância.' },
+    { id: 'tower', name: 'Torre de Elixir', type: 'Construção', cost: 7, dmg: 150, hp: 1200, range: 120, speed: 0, aoe: false, isBuilding: true, color:'#9b7aff', desc:'Construção forte, atira em tudo.' },
+    { id: 'giovanne', name: 'Giovanne', type: 'Feitiço', cost: 10, dmg: 99999, hp: 0, range: 9999, speed: 0, aoe: false, color:'#000000', desc:'Hit kill em qualquer alvo.' },
   ];
-
-  // Mini golem gerado ao morrer o Golem de Pedra
   const MINI_GOLEM = { id: 'mini_golem', name: 'Mini Golem', type: 'Tropa', cost: 0, dmg: 25, hp: 300, range: 10, speed: 26, aoe: false, color:'#ab9a7c' };
 
-  // Elixir
-  const ELIXIR_MAX = 10;
-  const ELIXIR_REGEN_PER_SEC = 1.0;
-
-  // Tempo de partida
+  const ELIXIR_MAX = 10, ELIXIR_REGEN_PER_SEC = 1.0;
   const MATCH_SECONDS = 120;
 
-  // Bot
-  const BOT_SPAWN_MIN = 2.0;
-  const BOT_SPAWN_MAX = 4.0;
+  const BOT_SPAWN_MIN = 1.8, BOT_SPAWN_MAX = 3.8;
 
-  // =============================
-  // Estado do jogo
-  // =============================
+  // ================================
+  // Estado
+  // ================================
   const canvas = document.getElementById('arena');
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = false;
@@ -296,52 +258,74 @@
   const botElixirTextEl = document.getElementById('botElixirText');
   const laneOverlay = document.getElementById('laneOverlay');
 
-  let lastTime = 0;
   let running = false;
   let timeLeft = MATCH_SECONDS;
+  let lastTime = 0;
 
-  let elixir = 0;
-  let botElixir = 0;
+  let elixir = 0, botElixir = 0;
 
-  let entities = []; // unidades e construções no campo
-  let projectiles = []; // opcional (não usado para simplificar)
-
-  // Estrutura torre viva (referências separadas para permitir reset)
   let towers;
+  let entities = [];
+  let splashes = [];
 
-  // Mão do jogador
-  const handSize = 4;
+  // Deck em ciclo (fila)
+  let deckQueue = [];
   let hand = [];
+  const HAND_SIZE = 4;
   let selectedCardIndex = -1;
 
-  // Bot spawn timer
+  // Bot
   let botSpawnTimer = 0;
-  let botNextSpawnIn = rand(BOT_SPAWN_MIN, BOT_SPAWN_MAX);
+  let botNextSpawnIn = 0;
+  let botTargetBias = 0; // tende alternar entre 0/1/2
 
-  // =============================
-  // Utilidades
-  // =============================
-  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-  function rand(a, b) { return a + Math.random() * (b - a); }
-  function choice(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  // ================================
+  // Utils
+  // ================================
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const rand = (a,b)=>a + Math.random()*(b-a);
+  const choice = (arr)=>arr[Math.floor(Math.random()*arr.length)];
+  const shuffle = (arr)=>arr.sort(()=>Math.random()-0.5);
 
+  function shade(hex, percent) {
+    const f = parseInt(hex.slice(1),16), t = percent<0?0:255, p = Math.abs(percent)/100;
+    const R = f>>16, G = f>>8&0xFF, B = f&0xFF;
+    const n = (x)=>Math.round((t-x)*p)+x;
+    return `#${(0x1000000 + (n(R)<<16) + (n(G)<<8) + n(B)).toString(16).slice(1)}`;
+  }
+
+  // ================================
+  // Setup / Reset
+  // ================================
   function resetGame() {
     running = false;
     timeLeft = MATCH_SECONDS;
-    elixir = 0;
-    botElixir = 0;
+    elixir = 0; botElixir = 0;
     entities = [];
-    projectiles = [];
+    splashes = [];
+    towers = JSON.parse(JSON.stringify(BASE_TOWERS));
+
+    // Deck em ciclo: use a lista completa (com Giovanne)
+    deckQueue = DECK_LIST.slice();
+    shuffle(deckQueue);
+
+    // Mão inicial sem duplicatas simultâneas (pela própria fila)
+    hand = [];
+    for (let i=0;i<HAND_SIZE;i++) {
+      hand.push(deckQueue.shift());
+    }
+
+    selectedCardIndex = -1;
+
     botSpawnTimer = 0;
     botNextSpawnIn = rand(BOT_SPAWN_MIN, BOT_SPAWN_MAX);
-    towers = JSON.parse(JSON.stringify(TOWERS)); // deep clone simples
-    hand = [];
-    selectedCardIndex = -1;
-    refillHand();
+    botTargetBias = Math.floor(Math.random()*3);
+
     updateUI();
-    statusEl.textContent = 'Aguardando...';
-    drawStaticField();
+    renderHand();
     drawAll();
+    statusEl.textContent = 'Aguardando...';
+    statusEl.style.color = 'var(--muted)';
   }
 
   function startGame() {
@@ -355,65 +339,114 @@
   function gameOver(msg) {
     running = false;
     statusEl.textContent = msg;
+    statusEl.style.color = '#fff';
+    updateUI();
+    drawAll();
   }
 
-  function refillHand() {
-    while (hand.length < handSize) {
-      hand.push(choice(DECK));
+  // ================================
+  // Mão / Deck ciclo
+  // ================================
+  function drawNextCard() {
+    // Reinsere a carta jogada no fim da fila e compra a próxima do topo
+    if (deckQueue.length === 0) {
+      deckQueue = DECK_LIST.slice();
+      shuffle(deckQueue);
     }
+    return deckQueue.shift();
+  }
+
+  function replaceCard(i, usedCard) {
+    // Carta jogada vai para o final do deck
+    deckQueue.push(usedCard);
+    hand[i] = drawNextCard();
     renderHand();
   }
 
-  function replaceCard(i) {
-    hand[i] = choice(DECK);
-    renderHand();
-  }
-
-  // =============================
-  // Renderização UI
-  // =============================
   function renderHand() {
     handEl.innerHTML = '';
     hand.forEach((card, idx) => {
       const div = document.createElement('div');
       div.className = 'card' + (idx === selectedCardIndex ? ' selected' : '');
-      div.style.borderColor = shade(card.color, -40);
-      div.style.background = shade(card.color, -65);
+
+      const typeClass = card.isBuilding ? 'build' : (card.type === 'Feitiço' ? 'spell' : 'troop');
+      const initial = (card.name.match(/\b(\p{L})/u) || ['?'])[0].toUpperCase();
+
+      div.title = `${card.name} — ${card.type}\n${card.desc || ''}\nCusto: ${card.cost}`;
       div.innerHTML = `
+        <div class="badge ${typeClass}">${initial}</div>
         <div class="card-cost">${card.cost}</div>
         <div class="card-name">${card.name}</div>
         <div class="card-type">${card.type}</div>
+        <div class="tooltip">${card.desc || ''}</div>
       `;
+      div.style.borderColor = shade(card.color, -40);
+      div.style.background = shade(card.color, -65);
+
       div.addEventListener('click', () => {
         if (!running) return;
-        if (selectedCardIndex === idx) {
-          selectedCardIndex = -1;
-        } else {
-          selectedCardIndex = idx;
-        }
-        renderHand();
+        selectedCardIndex = (selectedCardIndex === idx ? -1 : idx);
+        renderHand(); updateLaneOverlay();
       });
       handEl.appendChild(div);
     });
   }
 
+  // ================================
+  // UI / Overlays
+  // ================================
   function updateUI() {
-    // Tempo
     const m = Math.floor(timeLeft / 60);
     const s = Math.floor(timeLeft % 60);
-    timerEl.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    timerEl.textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 
-    // Elixir
-    const pct = (elixir / ELIXIR_MAX) * 100;
-    elixirFillEl.style.width = `${pct}%`;
+    elixirFillEl.style.width = `${(elixir/ELIXIR_MAX)*100}%`;
     elixirTextEl.textContent = `${elixir.toFixed(1)} / ${ELIXIR_MAX}`;
-
     botElixirTextEl.textContent = `${botElixir.toFixed(1)} / ${ELIXIR_MAX}`;
   }
 
-  // =============================
+  function flashStatus(text, isError=false) {
+    statusEl.textContent = text;
+    statusEl.style.color = isError ? '#ff6b6b' : '#e8eef5';
+    setTimeout(()=>{
+      statusEl.textContent = running ? 'Em partida' : 'Aguardando...';
+      statusEl.style.color = 'var(--muted)';
+    }, 900);
+  }
+
+  function updateLaneOverlay() {
+    const selected = hand[selectedCardIndex];
+    laneOverlay.innerHTML = '';
+    if (!running || !selected) return;
+
+    // Só mostra a metade inferior se for tropa/construção
+    if (selected.type !== 'Feitiço') {
+      const frag = document.createDocumentFragment();
+      LANES.forEach(l => {
+        const laneDiv = document.createElement('div');
+        laneDiv.style.position = 'absolute';
+        laneDiv.style.left = `${(l.xMin/ARENA_W)*100}%`;
+        laneDiv.style.right = `${(1 - l.xMax/ARENA_W)*100}%`;
+        laneDiv.style.top = '55%';
+        laneDiv.style.bottom = '0';
+        laneDiv.style.background = 'rgba(255,255,255,0.06)';
+        laneDiv.style.borderLeft = '1px dashed rgba(255,255,255,0.12)';
+        laneDiv.style.borderRight = '1px dashed rgba(255,255,255,0.12)';
+        frag.appendChild(laneDiv);
+      });
+      laneOverlay.appendChild(frag);
+    } else {
+      // Feitiços: highlight leve no campo todo
+      const div = document.createElement('div');
+      div.style.position='absolute'; div.style.inset='0';
+      div.style.background='rgba(255, 211, 110, 0.08)';
+      laneOverlay.appendChild(div);
+    }
+  }
+
+  // ================================
   // Entrada do jogador
-  // =============================
+  // ================================
   canvas.addEventListener('click', (e) => {
     if (!running) return;
     if (selectedCardIndex < 0) return;
@@ -423,41 +456,42 @@
     const y = (e.clientY - rect.top) * (canvas.height / rect.height);
 
     const card = hand[selectedCardIndex];
-    if (card.cost > elixir) {
-      flashStatus('Elixir insuficiente', true);
-      return;
+    if (card.cost > elixir) { flashStatus('Elixir insuficiente', true); return; }
+
+    if (card.type === 'Feitiço') {
+      if (card.id === 'arrow') {
+        castArrow({x,y}, 60, card.dmg, 'bot');
+        spendElixir(card.cost);
+        const used = card; replaceCard(selectedCardIndex, used);
+        selectedCardIndex = -1; renderHand(); updateLaneOverlay(); return;
+      }
+      if (card.id === 'giovanne') {
+        // Hit kill no alvo inimigo mais próximo do clique (entidade ou torre) dentro de raio
+        const target = findTargetAtPoint({x,y}, 'bot', 40);
+        if (!target) { flashStatus('Nenhum alvo próximo', true); return; }
+        if (target.kind === 'tower') {
+          const T = towers.bot[target.towerKey];
+          T.hp = 0;
+        } else {
+          target.hp = 0;
+        }
+        splash(x,y,36,'#000');
+        spendElixir(card.cost);
+        const used = card; replaceCard(selectedCardIndex, used);
+        selectedCardIndex = -1; renderHand(); updateLaneOverlay(); return;
+      }
     }
 
-    if (card.id === 'arrow') {
-      // Feitiço: aplica dano em área
-      castArrow({x, y}, 60, card.dmg, 'bot');
-      spendElixir(card.cost);
-      replaceCard(selectedCardIndex);
-      selectedCardIndex = -1;
-      renderHand();
-      return;
-    }
+    // Tropas/Construções só na metade inferior
+    if (y < PLAYER_DEPLOY_Y_MIN) { flashStatus('Implante na sua metade inferior', true); return; }
 
-    // Construção: permite em metade inferior do jogador
-    // Tropas: idem
-    if (y < PLAYER_DEPLOY_Y_MIN) {
-      flashStatus('Implante na sua metade inferior', true);
-      return;
-    }
-
-    // Descobrir lane
     const laneIndex = LANES.findIndex(l => x >= l.xMin && x <= l.xMax);
-    if (laneIndex === -1) {
-      flashStatus('Clique dentro de uma lane', true);
-      return;
-    }
+    if (laneIndex === -1) { flashStatus('Clique dentro de uma lane', true); return; }
 
-    // Invocar entidade do jogador
-    spawnFromCard(card, 'player', laneIndex, {x: clamp(x, LANES[laneIndex].xMin, LANES[laneIndex].xMax), y});
+    spawnFromCard(card, 'player', laneIndex, { x: clamp(x, LANES[laneIndex].xMin, LANES[laneIndex].xMax), y });
     spendElixir(card.cost);
-    replaceCard(selectedCardIndex);
-    selectedCardIndex = -1;
-    renderHand();
+    const used = card; replaceCard(selectedCardIndex, used);
+    selectedCardIndex = -1; renderHand(); updateLaneOverlay();
   });
 
   function spendElixir(cost) {
@@ -465,256 +499,278 @@
     updateUI();
   }
 
-  function flashStatus(text, isError=false) {
-    statusEl.textContent = text;
-    statusEl.style.color = isError ? 'var(--bad)' : 'var(--text)';
-    setTimeout(() => {
-      statusEl.textContent = 'Em partida';
-      statusEl.style.color = 'var(--muted)';
-    }, 900);
+  function findTargetAtPoint(p, targetSide, radius) {
+    // Busca entidade inimiga mais próxima
+    let candidates = entities.filter(e => e.side === targetSide);
+    // Torna torres também selecionáveis
+    const sideT = targetSide === 'bot' ? towers.bot : towers.player;
+    ['left','king','right'].forEach(k=>{
+      const t = sideT[k];
+      if (t.hp>0) candidates.push({
+        kind:'tower', side: targetSide, towerKey:k, x:t.x, y:t.y, w:t.size.w, h:t.size.h,
+        isAlive: ()=>t.hp>0
+      });
+    });
+
+    candidates = candidates.filter(e=>{
+      const dx=e.x-p.x, dy=e.y-p.y;
+      return (dx*dx+dy*dy) <= radius*radius;
+    });
+    if (!candidates.length) return null;
+    candidates.sort((a,b)=>((a.x-p.x)**2 + (a.y-p.y)**2) - ((b.x-p.x)**2 + (b.y-p.y)**2));
+    return candidates[0];
   }
 
-  // =============================
-  // Entidades e lógica
-  // =============================
+  // ================================
+  // Unidades / Construções
+  // ================================
   function spawnFromCard(card, side, laneIndex, posOverride=null) {
     if (card.isBuilding) {
-      // Construção fixa que atira
       const pos = posOverride || deployPoint(side, laneIndex);
       entities.push(makeBuilding(card, side, laneIndex, pos));
       return;
     }
-    // Tropas
-    const pos = posOverride || deployPoint(side, laneIndex);
-    const unit = makeUnit(card, side, laneIndex, pos);
-    entities.push(unit);
+    if (card.type === 'Tropa') {
+      const pos = posOverride || deployPoint(side, laneIndex);
+      entities.push(makeUnit(card, side, laneIndex, pos));
+    }
   }
-
   function deployPoint(side, laneIndex) {
     const lane = LANES[laneIndex];
     const x = lane.midX;
     const y = side === 'player' ? ARENA_H * 0.92 : ARENA_H * 0.08;
-    return {x, y};
+    return {x,y};
   }
-
-  function makeUnit(card, side, laneIndex, pos) {
+  function makeUnit(card, side, lane, pos) {
     return {
       kind: 'unit',
-      id: card.id,
-      name: card.name,
-      color: card.color,
-      side,
-      lane: laneIndex,
+      id: card.id, name: card.name, color: card.color,
+      side, lane,
       x: pos.x, y: pos.y,
       w: 14, h: 14,
-      hp: card.hp,
-      maxHp: card.hp,
-      dmg: card.dmg,
-      range: card.range,
-      aoe: !!card.aoe,
-      flying: !!card.flying,
-      targetOnlyTowers: !!card.targetOnlyTowers,
-      speed: card.speed, // px por segundo
-      atkCooldown: 0.6,  // 1 ataque a cada 0.6s
-      atkTimer: 0,
+      hp: card.hp, maxHp: card.hp,
+      dmg: card.dmg, range: card.range, aoe: !!card.aoe,
+      flying: !!card.flying, targetOnlyTowers: !!card.targetOnlyTowers,
+      speed: card.speed,
+      atkCooldown: 0.6, atkTimer: 0,
     };
   }
-
-  function makeBuilding(card, side, laneIndex, pos) {
+  function makeBuilding(card, side, lane, pos) {
     return {
       kind: 'building',
-      id: card.id,
-      name: card.name,
-      color: card.color,
-      side,
-      lane: laneIndex,
+      id: card.id, name: card.name, color: card.color,
+      side, lane,
       x: pos.x, y: pos.y,
       w: 18, h: 18,
-      hp: card.hp,
-      maxHp: card.hp,
-      dmg: card.dmg,
-      range: card.range,
-      aoe: !!card.aoe,
-      atkCooldown: 0.7,
-      atkTimer: 0,
-      lifetime: 40, // segundos (ajuste livre)
+      hp: card.hp, maxHp: card.hp,
+      dmg: card.dmg, range: card.range, aoe: !!card.aoe,
+      atkCooldown: 0.7, atkTimer: 0, lifetime: 45
     };
   }
 
-  function castArrow(center, radius, dmg, targetSide) {
-    // dano em área simples
-    for (const e of entities) {
-      if (e.side !== targetSide) continue;
-      const dx = e.x - center.x;
-      const dy = e.y - center.y;
-      if (dx*dx + dy*dy <= radius*radius) {
-        e.hp -= dmg;
-      }
-    }
-    // torres também podem ser atingidas pelo feitiço
-    for (const key of ['king','left','right']) {
-      const t = targetSide === 'bot' ? towers.bot[key] : towers.player[key];
-      const dx = t.x - center.x;
-      const dy = t.y - center.y;
-      const r = radius + Math.max(t.size.w, t.size.h)/2;
-      if (dx*dx + dy*dy <= r*r) {
-        t.hp = Math.max(0, t.hp - dmg * 0.4); // reduzir eficiência vs torres
-      }
-    }
-    // feedback visual simples
-    splash(center.x, center.y, radius, '#ffd36e');
-  }
-
-  const splashes = [];
-  function splash(x,y,r,color) {
-    splashes.push({x,y,r,color,t:0});
-  }
-
+  // Targeting
   function nearestEnemyTarget(src) {
-    // Decide alvo prioritário: se targetOnlyTowers, busca torre na lane
+    // Se focar apenas torres, preferir torre da lane; se cair, rei
     if (src.targetOnlyTowers) {
-      const targetTower = closestTowerInLane(src);
-      if (targetTower) return targetTower;
+      const t = towerForLaneOrKing(src);
+      if (t) return t;
     }
-    // Primeiro entidades inimigas na mesma lane, senão qualquer
-    let candidates = entities.filter(e => e.side !== src.side);
+
+    // Entidades inimigas (prioriza mesmas lane)
+    let candidates = entities.filter(e => e.side !== src.side && e.hp > 0);
+    const sameLane = candidates.filter(e => e.lane === src.lane);
+    if (sameLane.length) candidates = sameLane;
     if (candidates.length) {
-      // prioriza mesma lane
-      const sameLane = candidates.filter(e => e.lane === src.lane);
-      if (sameLane.length) candidates = sameLane;
-      // escolhe o mais próximo
-      candidates.sort((a,b) => dist2(src,a) - dist2(src,b));
-      const target = candidates[0];
-      return target;
+      candidates.sort((a,b)=>dist2(src,a)-dist2(src,b));
+      return candidates[0];
     }
-    // Se não há entidades, ataca torres (na mesma lane primeiro)
-    const t = closestTowerInLane(src) || closestAnyTower(src);
-    return t;
+
+    // Se não há entidades, mirar torre da lane (ou rei)
+    return towerForLaneOrKing(src) || closestAnyTower(src);
   }
 
-  function closestTowerInLane(src) {
+  function towerForLaneOrKing(src) {
     const others = src.side === 'player' ? towers.bot : towers.player;
-    const laneTargets = [
-      { key:'left',  t: others.left, want: 0 },
-      { key:'king',  t: others.king, want: 1 },
-      { key:'right', t: others.right, want: 2 },
-    ];
-    const picks = laneTargets.filter(o => o.want === src.lane && o.t.hp > 0);
-    if (picks.length) {
-      return towerAsTarget(picks[0].t, src.side === 'player' ? 'bot' : 'player', picks[0].key);
+    const mapLaneKey = (lane)=> lane===0?'left' : lane===2?'right' : 'king';
+    const laneKey = mapLaneKey(src.lane);
+
+    // Se princesa da lane está viva, mira nela; se não, mira o rei
+    if (laneKey !== 'king' && others[laneKey].hp > 0) {
+      return towerAsTarget(others[laneKey], src.side==='player'?'bot':'player', laneKey);
     }
-    // fallback: mais próximo
-    return closestAnyTower(src);
+    if (others.king.hp > 0) {
+      return towerAsTarget(others.king, src.side==='player'?'bot':'player', 'king');
+    }
+    // fallback para outra princesa viva (se rei caiu, jogo deve acabar logo)
+    const rest = ['left','right'].filter(k=>others[k].hp>0);
+    if (rest.length) return towerAsTarget(others[rest[0]], src.side==='player'?'bot':'player', rest[0]);
+    return null;
   }
 
   function closestAnyTower(src) {
     const others = src.side === 'player' ? towers.bot : towers.player;
     const arr = ['left','king','right']
-      .map(k => ({ key:k, t: others[k]}))
-      .filter(o => o.t.hp > 0)
-      .map(o => towerAsTarget(o.t, src.side === 'player' ? 'bot' : 'player', o.key));
+      .filter(k=>others[k].hp>0)
+      .map(k=>towerAsTarget(others[k], src.side==='player'?'bot':'player', k));
     if (!arr.length) return null;
-    arr.sort((a,b) => dist2(src,a) - dist2(src,b));
+    arr.sort((a,b)=>dist2(src,a)-dist2(src,b));
     return arr[0];
   }
 
   function towerAsTarget(t, side, key) {
     return {
-      kind: 'tower',
-      side,
-      towerKey: key,
-      x: t.x, y: t.y,
-      w: t.size.w, h: t.size.h,
-      isAlive: () => t.hp > 0,
-      applyDamage: (dmg) => { t.hp = Math.max(0, t.hp - dmg); },
-      getHP: () => t.hp,
-      getMaxHP: () => t.max,
+      kind:'tower', side, towerKey:key,
+      x:t.x, y:t.y, w:t.size.w, h:t.size.h,
+      isAlive:()=>t.hp>0,
+      applyDamage:(dmg)=>{ t.hp = Math.max(0, t.hp - dmg); },
+      getHP:()=>t.hp, getMaxHP:()=>t.max
     };
   }
 
-  function dist2(a,b) {
-    const dx = a.x - b.x;
-    const dy = a.y - b.y;
-    return dx*dx + dy*dy;
+  const dist2 = (a,b)=> (a.x-b.x)**2 + (a.y-b.y)**2;
+
+  // Feitiços
+  function castArrow(center, radius, dmg, targetSide) {
+    for (const e of entities) {
+      if (e.side !== targetSide) continue;
+      const dx=e.x-center.x, dy=e.y-center.y;
+      if (dx*dx+dy*dy <= radius*radius) e.hp -= dmg;
+    }
+    // Dano reduzido em torres
+    const sideT = targetSide==='bot' ? towers.bot : towers.player;
+    ['left','king','right'].forEach(k=>{
+      const t = sideT[k];
+      const dx=t.x-center.x, dy=t.y-center.y;
+      const r = radius + Math.max(t.size.w,t.size.h)/2;
+      if (dx*dx+dy*dy <= r*r) t.hp = Math.max(0, t.hp - dmg*0.4);
+    });
+    splash(center.x, center.y, radius, '#ffd36e');
   }
 
-  // =============================
+  function splash(x,y,r,color){ splashes.push({x,y,r,color,t:0}); }
+
+  // ================================
   // Bot
-  // =============================
+  // ================================
   function botThink(dt) {
-    // Regenera elixir do bot
     botElixir = clamp(botElixir + ELIXIR_REGEN_PER_SEC * dt, 0, ELIXIR_MAX);
-
     botSpawnTimer += dt;
-    if (botSpawnTimer >= botNextSpawnIn) {
-      botSpawnTimer = 0;
-      botNextSpawnIn = rand(BOT_SPAWN_MIN, BOT_SPAWN_MAX);
+    if (botSpawnTimer < botNextSpawnIn) return;
 
-      // Escolhe uma carta aleatória que o bot possa pagar; se nenhuma, tenta feitiço barato
-      const affordable = DECK.filter(c => c.cost <= botElixir);
-      const card = affordable.length ? choice(affordable) : null;
+    botSpawnTimer = 0;
+    botNextSpawnIn = rand(BOT_SPAWN_MIN, BOT_SPAWN_MAX);
 
-      if (card) {
-        // Determina lane para pressionar (ex.: mirar torre mais fraca)
-        const lane = pickBotLane();
-        if (card.id === 'arrow') {
-          // Flecha na metade do jogador (defensivo/ofensivo inverso)
-          const target = pickArrowSpotAgainst('player');
-          castArrow(target, 60, card.dmg, 'player');
-          botElixir = clamp(botElixir - card.cost, 0, ELIXIR_MAX);
-        } else {
-          const x = LANES[lane].midX + rand(-24, 24);
-          const y = rand(ARENA_H * 0.08, BOT_DEPLOY_Y_MAX);
-          spawnFromCard(card, 'bot', lane, {x, y});
-          botElixir = clamp(botElixir - card.cost, 0, ELIXIR_MAX);
+    // Escolha de lane com variedade
+    const lane = pickBotLane();
+
+    // Bot: usa cartas do deck em fila, preferindo que caibam no elixir
+    // Simples: roda até achar uma pagável (limite de tentativas)
+    let chosen = null;
+    for (let i=0; i<DECK_LIST.length; i++) {
+      const cand = deckQueueBot[0];
+      if (!cand) break;
+      if (cand.cost <= botElixir) { chosen = cand; deckQueueBot.shift(); deckQueueBot.push(cand); break; }
+      // Rotaciona tentando achar uma pagável
+      deckQueueBot.push(deckQueueBot.shift());
+    }
+
+    if (!chosen) return;
+
+    if (chosen.type === 'Feitiço') {
+      if (chosen.id === 'arrow') {
+        const spot = pickArrowSpotAgainst('player');
+        castArrow(spot, 60, chosen.dmg, 'player');
+        botElixir = clamp(botElixir - chosen.cost, 0, ELIXIR_MAX);
+      } else if (chosen.id === 'giovanne' && Math.random() < 0.35) {
+        // O bot às vezes usa Giovanne (não sempre pra não ficar injusto)
+        const target = pickHighValueTarget('player');
+        if (target) {
+          if (target.kind === 'tower') {
+            const T = towers.player[target.towerKey]; T.hp = 0;
+            splash(T.x, T.y, 36, '#000');
+          } else {
+            target.hp = 0; splash(target.x, target.y, 36, '#000');
+          }
+          botElixir = clamp(botElixir - chosen.cost, 0, ELIXIR_MAX);
         }
       }
+    } else {
+      const x = LANES[lane].midX + rand(-22,22);
+      const y = rand(ARENA_H * 0.08, BOT_DEPLOY_Y_MAX);
+      spawnFromCard(chosen, 'bot', lane, {x,y});
+      botElixir = clamp(botElixir - chosen.cost, 0, ELIXIR_MAX);
     }
   }
 
   function pickBotLane() {
-    // Escolhe a lane com menor HP de torre do jogador (prioridade)
-    const hpLane = [
-      { lane:0, hp: towers.player.left.hp },
-      { lane:1, hp: towers.player.king.hp },
-      { lane:2, hp: towers.player.right.hp },
-    ].sort((a,b)=>a.hp-b.hp);
-    // 70% mira a mais fraca, 30% aleatório
-    return Math.random()<0.7 ? hpLane[0].lane : Math.floor(Math.random()*3);
+    // Probabilidades: 50% torre mais fraca, 30% aleatório, 20% mira rei se caminho aberto
+    const r = Math.random();
+    if (r < 0.5) {
+      const order = [
+        { lane:0, hp: towers.player.left.hp },
+        { lane:1, hp: towers.player.king.hp },
+        { lane:2, hp: towers.player.right.hp },
+      ].sort((a,b)=>a.hp-b.hp);
+      return order[0].lane;
+    } else if (r < 0.8) {
+      // Alterna para evitar spam no mesmo lado
+      botTargetBias = (botTargetBias + 1) % 3;
+      return botTargetBias;
+    } else {
+      // Mira rei se a lane correspondente estiver aberta (princesa derrubada)
+      if (towers.player.left.hp <= 0) return 0;
+      if (towers.player.right.hp <= 0) return 2;
+      return 1;
+    }
   }
 
   function pickArrowSpotAgainst(side) {
-    // Mira maior aglomeração de entidades do lado alvo
     const targets = entities.filter(e => e.side === side);
     if (!targets.length) {
-      // mira torre do rei
-      const t = side === 'player' ? towers.player.king : towers.bot.king;
-      return { x: t.x, y: t.y };
+      const t = side==='player' ? towers.player.king : towers.bot.king;
+      return { x:t.x, y:t.y };
     }
-    // calcula centro aproximado
-    const avg = targets.reduce((a,e)=>({x:a.x+e.x, y:a.y+e.y}), {x:0,y:0});
+    const avg = targets.reduce((a,e)=>({x:a.x+e.x,y:a.y+e.y}), {x:0,y:0});
     avg.x /= targets.length; avg.y /= targets.length;
     return avg;
   }
 
-  // =============================
+  function pickHighValueTarget(side) {
+    // Prioriza Rei > princesa mais fraca > unidade com maior hp
+    const ts = side==='player' ? towers.player : towers.bot;
+    if (ts.king.hp > 0) return { kind:'tower', towerKey:'king', x:ts.king.x, y:ts.king.y };
+    const princesses = ['left','right'].filter(k=>ts[k].hp>0).sort((a,b)=>ts[a].hp - ts[b].hp);
+    if (princesses.length) {
+      const k = princesses[0]; return { kind:'tower', towerKey:k, x:ts[k].x, y:ts[k].y };
+    }
+    const units = entities.filter(e=>e.side===side);
+    if (!units.length) return null;
+    units.sort((a,b)=>b.hp - a.hp);
+    return units[0];
+  }
+
+  // Deck do bot (fila separada)
+  let deckQueueBot = [];
+  function initBotDeck() {
+    deckQueueBot = DECK_LIST.slice();
+    shuffle(deckQueueBot);
+  }
+
+  // ================================
   // Loop principal
-  // =============================
+  // ================================
   function tick(now) {
     if (!running) return;
-    const dt = Math.min(0.033, (now - lastTime) / 1000); // cap 30ms
+    const dt = Math.min(0.033, (now - lastTime)/1000);
     lastTime = now;
 
     // Tempo
     timeLeft -= dt;
     if (timeLeft <= 0) {
       timeLeft = 0;
-      // Checa condição — destruição do rei decide; se ninguém caiu, empate simples
       if (towers.bot.king.hp <= 0 && towers.player.king.hp > 0) gameOver('Vitória por tempo!');
       else if (towers.player.king.hp <= 0 && towers.bot.king.hp > 0) gameOver('Derrota por tempo...');
       else gameOver('Fim de tempo: Empate');
-      updateUI();
-      drawAll();
       return;
     }
 
@@ -724,79 +780,55 @@
     // Bot
     botThink(dt);
 
-    // Atualiza entidades e torres
+    // Entidades e torres
     updateEntities(dt);
     towersAttack(dt);
 
-    // Verifica vitória/derrota
-    if (towers.bot.king.hp <= 0) {
-      gameOver('Vitória! Torre do rei inimiga destruída.');
-    } else if (towers.player.king.hp <= 0) {
-      gameOver('Derrota. Sua torre do rei foi destruída.');
-    }
+    // Vitória/Derrota
+    if (towers.bot.king.hp <= 0) gameOver('Vitória! Torre do rei inimiga destruída.');
+    else if (towers.player.king.hp <= 0) gameOver('Derrota. Sua torre do rei foi destruída.');
 
-    // Render
     updateUI();
     drawAll();
-
     if (running) requestAnimationFrame(tick);
   }
 
   function updateEntities(dt) {
-    // Movimento, alvo e ataque
     for (const e of entities) {
-      if (e.kind !== 'unit' && e.kind !== 'building') continue;
-      if (e.hp <= 0) continue;
+      if ((e.kind !== 'unit' && e.kind !== 'building') || e.hp <= 0) continue;
 
       if (e.kind === 'building') {
-        e.lifetime -= dt;
-        if (e.lifetime <= 0) e.hp = 0;
+        e.lifetime -= dt; if (e.lifetime <= 0) e.hp = 0;
       }
 
-      // Alvo
-      let target = nearestEnemyTarget(e);
+      const target = nearestEnemyTarget(e);
       if (!target) continue;
 
-      const isTowerTarget = target.kind === 'tower';
-      const tx = target.x, ty = target.y;
-
-      // Distância
-      const dx = tx - e.x;
-      const dy = ty - e.y;
+      const dx = target.x - e.x, dy = target.y - e.y;
       const d2 = dx*dx + dy*dy;
       const inRange = d2 <= (e.range*e.range);
 
       if (!inRange && e.kind === 'unit') {
-        // Move em direção ao alvo (somente unidades)
-        const d = Math.sqrt(d2) || 1;
-        const dirx = dx / d;
-        const diry = dy / d;
+        const d = Math.sqrt(d2)||1, dirx = dx/d, diry = dy/d;
         e.x += dirx * e.speed * dt;
         e.y += diry * e.speed * dt;
-
-        // Clampa X para dentro da lane visual (efeito "grid")
+        // prender na lane
         const lane = LANES[e.lane];
         e.x = clamp(e.x, lane.xMin, lane.xMax);
       }
 
-      // Ataque
       e.atkTimer -= dt;
       if (inRange && e.atkTimer <= 0) {
         e.atkTimer = e.atkCooldown;
-        // Dano
         if (target.kind === 'tower') {
           target.applyDamage(e.dmg);
         } else {
           if (e.aoe) {
-            // dano em área
             const R = Math.max(24, e.range * 0.6);
             for (const t of entities) {
-              if (t.side === e.side) continue;
-              const ddx = t.x - e.x;
-              const ddy = t.y - e.y;
-              if (ddx*ddx + ddy*ddy <= R*R) {
-                t.hp -= e.dmg;
-              }
+              if (t.side === e.side || t.hp <= 0) continue;
+              const ddx=t.x-e.x, ddy=t.y-e.y;
+              if (ddx*ddx+ddy*ddy <= R*R) t.hp -= e.dmg;
             }
           } else {
             target.hp -= e.dmg;
@@ -805,19 +837,15 @@
       }
     }
 
-    // Remover mortos e aplicar efeitos de morte
+    // Mortes e efeitos
     const next = [];
     for (const e of entities) {
-      if (e.hp > 0) {
-        next.push(e);
-      } else {
-        // Efeito: se golem, dividir
+      if (e.hp > 0) next.push(e);
+      else {
         if (e.id === 'golem') {
-          const l = e.lane;
-          const pos1 = { x: e.x - 8, y: e.y };
-          const pos2 = { x: e.x + 8, y: e.y };
-          next.push(makeUnit(MINI_GOLEM, e.side, l, pos1));
-          next.push(makeUnit(MINI_GOLEM, e.side, l, pos2));
+          const l=e.lane;
+          next.push(makeUnit(MINI_GOLEM, e.side, l, {x:e.x-8,y:e.y}));
+          next.push(makeUnit(MINI_GOLEM, e.side, l, {x:e.x+8,y:e.y}));
         }
       }
     }
@@ -825,91 +853,66 @@
   }
 
   function towersAttack(dt) {
-    // Cada torre ataca o alvo mais próximo em alcance
-    function attackSide(sideName, my) {
+    const attackSet = (my, mySide) => {
       for (const key of ['left','right','king']) {
         const t = my[key];
         if (t.hp <= 0) continue;
-
-        // Seleciona alvo mais próximo (entidade do lado oposto) em range
-        const enemies = entities.filter(e => e.side !== sideName);
+        const enemies = entities.filter(e => e.side !== mySide && e.hp > 0);
         if (!enemies.length) continue;
-        enemies.sort((a,b) => {
-          const da = (a.x - t.x)**2 + (a.y - t.y)**2;
-          const db = (b.x - t.x)**2 + (b.y - t.y)**2;
-          return da - db;
-        });
+        enemies.sort((a,b)=>((a.x-t.x)**2+(a.y-t.y)**2) - ((b.x-t.x)**2+(b.y-t.y)**2));
         const target = enemies[0];
         const d2 = (target.x - t.x)**2 + (target.y - t.y)**2;
         if (d2 <= t.range*t.range) {
-          // aplica dps por segundo
           target.hp -= t.dps * dt;
-          // efeito visual
           drawLaser(t.x, t.y, target.x, target.y, t.color);
         }
       }
-    }
-    attackSide('player', towers.player);
-    attackSide('bot', towers.bot);
+    };
+    attackSet(towers.player, 'player');
+    attackSet(towers.bot, 'bot');
   }
 
-  // =============================
+  // ================================
   // Desenho
-  // =============================
+  // ================================
   function drawStaticField() {
     ctx.clearRect(0,0,ARENA_W,ARENA_H);
-    // Meia-campo
+
+    // meia-campo
     ctx.save();
-    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(0, ARENA_H/2);
-    ctx.lineTo(ARENA_W, ARENA_H/2);
-    ctx.stroke();
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(0, ARENA_H/2); ctx.lineTo(ARENA_W, ARENA_H/2); ctx.stroke();
     ctx.restore();
 
-    // Lanes (linhas verticais sutis)
+    // limites das lanes
     ctx.save();
     ctx.strokeStyle = 'rgba(255,255,255,0.08)';
     for (const l of LANES) {
-      ctx.beginPath();
-      ctx.moveTo(l.xMin, 0);
-      ctx.lineTo(l.xMin, ARENA_H);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(l.xMax, 0);
-      ctx.lineTo(l.xMax, ARENA_H);
-      ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(l.xMin, 0); ctx.lineTo(l.xMin, ARENA_H); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(l.xMax, 0); ctx.lineTo(l.xMax, ARENA_H); ctx.stroke();
     }
     ctx.restore();
   }
 
   function drawAll() {
     drawStaticField();
-    // Splashes
+
+    // splashes
     for (const s of splashes) {
       s.t += 0.06;
       ctx.save();
-      ctx.strokeStyle = s.color;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r * (1 + s.t*0.5), 0, Math.PI*2);
-      ctx.stroke();
+      ctx.strokeStyle = s.color; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r*(1+s.t*0.5), 0, Math.PI*2); ctx.stroke();
       ctx.restore();
     }
-    // Fade out splashes
-    for (let i = splashes.length-1; i >= 0; i--) {
-      if (splashes[i].t > 0.6) splashes.splice(i,1);
-    }
+    for (let i=splashes.length-1;i>=0;i--) if (splashes[i].t>0.6) splashes.splice(i,1);
 
-    // Torres
+    // torres
     drawTowerSet(towers.player, PLAYER_COLOR);
     drawTowerSet(towers.bot, BOT_COLOR);
 
-    // Entidades
-    for (const e of entities) {
-      drawEntity(e);
-    }
+    // entidades
+    for (const e of entities) drawEntity(e);
   }
 
   function drawTowerSet(side, color) {
@@ -919,112 +922,62 @@
   }
 
   function drawTowerRect(t, color, isKing=false) {
-    const w = t.size.w, h = t.size.h;
+    const w=t.size.w, h=t.size.h;
     ctx.save();
     ctx.fillStyle = color;
     ctx.fillRect(t.x - w/2, t.y - h/2, w, h);
-
-    // “telhado” pixelado
     ctx.fillStyle = shade(color, -30);
     ctx.fillRect(t.x - w/2, t.y - h/2, w, 6);
-
-    // Barra de HP
     drawHPBar(t.x - w/2, t.y - h/2 - 8, w, 5, t.hp, t.max);
-
-    // Coroa para o rei (bloco)
-    if (isKing) {
-      ctx.fillStyle = '#ffd36e';
-      ctx.fillRect(t.x - 6, t.y - h/2 - 14, 12, 6);
-    }
+    if (isKing) { ctx.fillStyle='#ffd36e'; ctx.fillRect(t.x-6, t.y-h/2-14, 12, 6); }
     ctx.restore();
   }
 
   function drawEntity(e) {
     ctx.save();
-    // Corpo
     ctx.fillStyle = e.color || '#fff';
     ctx.fillRect(e.x - e.w/2, e.y - e.h/2, e.w, e.h);
-
-    // contorno
-    ctx.strokeStyle = '#00000099';
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = '#00000099'; ctx.lineWidth = 2;
     ctx.strokeRect(e.x - e.w/2, e.y - e.h/2, e.w, e.h);
-
-    // HP bar
     drawHPBar(e.x - e.w/2, e.y - e.h/2 - 6, e.w, 4, e.hp, e.maxHp);
     ctx.restore();
   }
 
   function drawLaser(x1,y1,x2,y2,color) {
     ctx.save();
-    ctx.strokeStyle = shade(color, -40);
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.stroke();
+    ctx.strokeStyle = shade(color, -40); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
     ctx.restore();
   }
 
   function drawHPBar(x,y,w,h,hp,max) {
     const pct = clamp(hp/max, 0, 1);
     ctx.save();
-    ctx.fillStyle = '#111a';
-    ctx.fillRect(x, y, w, h);
-    ctx.fillStyle = '#3bd37a';
-    ctx.fillRect(x, y, w * pct, h);
-    ctx.strokeStyle = '#0007';
-    ctx.lineWidth = 1;
-    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = '#111a'; ctx.fillRect(x,y,w,h);
+    ctx.fillStyle = '#3bd37a'; ctx.fillRect(x,y,w*pct,h);
+    ctx.strokeStyle = '#0007'; ctx.lineWidth = 1; ctx.strokeRect(x,y,w,h);
     ctx.restore();
   }
 
-  function shade(hex, percent) {
-    // ajusta brilho de cor hex
-    const f = parseInt(hex.slice(1),16), t = percent<0?0:255, p = Math.abs(percent)/100;
-    const R = f>>16, G = f>>8&0x00FF, B = f&0x0000FF;
-    const n = (x)=>Math.round((t - x)*p)+x;
-    return `#${(0x1000000 + (n(R)<<16) + (n(G)<<8) + n(B)).toString(16).slice(1)}`;
-  }
-
-  // =============================
-  // Interações adicionais
-  // =============================
-  startBtn.addEventListener('click', () => {
-    startGame();
-  });
-
-  // Linha de grade/lanes como overlay ao selecionar carta
-  function updateLaneOverlay() {
-    const selected = hand[selectedCardIndex];
-    const show = running && selected;
-    laneOverlay.innerHTML = '';
-    if (!show) return;
-    const frag = document.createDocumentFragment();
-    LANES.forEach((l, idx) => {
-      const laneDiv = document.createElement('div');
-      laneDiv.style.position = 'absolute';
-      laneDiv.style.left = `${(l.xMin/ARENA_W)*100}%`;
-      laneDiv.style.right = `${(1 - l.xMax/ARENA_W)*100}%`;
-      laneDiv.style.top = '55%';
-      laneDiv.style.bottom = '0';
-      laneDiv.style.background = 'rgba(255,255,255,0.06)';
-      laneDiv.style.borderLeft = '1px dashed rgba(255,255,255,0.12)';
-      laneDiv.style.borderRight = '1px dashed rgba(255,255,255,0.12)';
-      frag.appendChild(laneDiv);
-    });
-    laneOverlay.appendChild(frag);
-  }
+  // ================================
+  // Eventos / Inicialização
+  // ================================
+  startBtn.addEventListener('click', startGame);
 
   const ro = new ResizeObserver(updateLaneOverlay);
-  ro.observe(handEl);
-  ro.observe(laneOverlay);
+  ro.observe(handEl); ro.observe(laneOverlay);
   setInterval(updateLaneOverlay, 150);
 
-  // Inicializa
-  resetGame();
+  // Bot deck init
+  function fullReset() {
+    initBotDeck();
+    resetGame();
+  }
+
+  fullReset();
+
 })();
 </script>
 </body>
 </html>
-
+```
